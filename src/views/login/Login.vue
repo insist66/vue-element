@@ -69,7 +69,7 @@ export default {
         //  1.1 项目中除了登录之外的API接口，必须在登录之后才能访问
         //  1.2 token 只应在当前网站打开生效 所以token保存在sessionStorage中
         window.sessionStorage.setItem('token', res.data.token);
-        this.$router.push("/home");
+        this.$router.push('/home');
       })
     }
   }
