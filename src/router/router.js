@@ -11,13 +11,24 @@ const router = new VueRouter({
     },
     {
       path: '/login',
-      component: () => import(/* webpackChunkName: "home" */ '../views/login/Login.vue'),
+      component: () => import(/* webpackChunkName: "login" */ '../views/login/Login.vue'),
       meta: {title: '登录'}
     },
     {
       path: '/home',
       component: () => import(/* webpackChunkName: "home" */ '../views/home/Home.vue'),
-      meta: {title: '首页'}
+      meta: {title: '首页'},
+      redirect: '/welcome', // 重定向到welcome页面
+      children: [
+        {
+          path: '/welcome',
+          component: () => import(/* webpackChunkName: "welcome" */ '../views/welcome/WelCome.vue'),
+        },
+        {
+          path: '/users',
+          component: () => import(/* webpackChunkName: "user" */ '../views/user/User.vue'),
+        }
+      ]
     },
   ]
 })
