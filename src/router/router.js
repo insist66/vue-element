@@ -34,6 +34,7 @@ const router = new VueRouter({
 })
 
 // 挂在路由导航守卫
+// 无法直接输入路径访问首页
 router.beforeEach((to, from, next) => {
   // to 将要访问的路径
   // form 代表从哪个路径跳转而来

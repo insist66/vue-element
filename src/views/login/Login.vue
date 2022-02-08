@@ -9,11 +9,18 @@
       <el-form class="login_form" :model="loginFrom" ref="loginFromRef" :rules="loginFromRules">
         <!-- 用户名 -->
         <el-form-item prop="username">
-          <el-input v-model="loginFrom.username" prefix-icon="el-icon-user-solid"></el-input>
+          <el-input 
+          v-model="loginFrom.username" 
+          placeholder="请输入账号"
+          prefix-icon="el-icon-user-solid"></el-input>
         </el-form-item>
         <!-- 密码 -->
         <el-form-item prop="password">
-          <el-input v-model="loginFrom.password" type="password" prefix-icon="iconfont icon-3702mima"></el-input>
+          <el-input 
+          v-model="loginFrom.password" 
+          type="password" 
+          placeholder="请输入密码"
+          prefix-icon="iconfont icon-3702mima"></el-input>
         </el-form-item>
         <!-- 按钮区域 -->
         <el-form-item class="btns">
@@ -26,6 +33,7 @@
 </template>
 
 <script>
+// import { getLogin } from '../../api/index.js';
 export default {
   data() {
     return {
