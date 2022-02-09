@@ -88,6 +88,18 @@
 <script>
 export default {
   data() {
+    // 邮箱验证规则
+    var checkEmail = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('邮箱不能为空'))
+      }
+      const emailReg = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/
+
+      if (emailReg.test(value)) {
+        return callback()
+      }
+      return callback(new Error('邮箱格式错误'))
+    }
     return {
       queryInfo: { // 获取用户列表的参数对象
         query: '',
@@ -116,7 +128,7 @@ export default {
         ],
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
-          // { validator: checkEmail, trigger: 'blur' }
+          { validator: checkEmail, trigger: 'blur' }
         ],
         mobile: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
