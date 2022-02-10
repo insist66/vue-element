@@ -280,28 +280,27 @@ export default {
 
     // 根据id删除对应的用户id
     async removeUserById(id) {
-      console.log(id);
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+       // 询问用户是否删除用户
+      const confirmRusult = await this.$confirm('此操作将永久删除该文件, 是否继续?', '永久删除该用户', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });          
-      });
-      const {data: res} = await this.$http.delete('users' + id);
-      if(res.meta.status !== 200) {
-        return this.$message.error('删除用户失败')
+      }).catch(err => err)
+      console.log(confirmRusult)
+      // 用户点击了删除,则返回字符串 confirm
+      // 用户取消了删除,则返回字符串 cancel
+      if (confirmRusult !== 'confirm') {
+        return this.$message.info('已经取消了删除')
       }
-      this.$message.success('删除用户成功');
-      this.getUserList();
+      this.$http.delete('users/' + id).then(res => {
+        const { data: response } = res
+        console.log(response)
+        if (response.meta.status !== 200) {
+          return this.$message.error('该用户删除失败')
+        }
+        this.$message.success('该用户已经删除')
+        this.getUserList()
+      })
     }
   }
  }
