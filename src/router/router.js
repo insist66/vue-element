@@ -31,6 +31,10 @@ const router = new VueRouter({
         {
           path: '/rights',
           component: () => import(/* webpackChunkName: "user" */ '../views/power/rights.vue'),
+        },
+        {
+          path: '/roles',
+          component: () => import(/* webpackChunkName: "user" */ '../views/power/roles.vue'),
         }
       ]
     },
