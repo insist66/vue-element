@@ -236,7 +236,7 @@ export default {
       })
     },
 
-    // 修改用户的对话框
+    // 获取修改用户对话框数据
     async showEditDialog(id) {
       const { data:res } = await this.$http.get('users/' + id);
       console.log(res);
@@ -247,18 +247,13 @@ export default {
       this.EditDialogVisible = true;
     },
 
-    // 监听对话框的关闭事件
-    editDialogClose() {
-      this.$refs.editFormRef.resetFields();
-    },
-
     // 修改用户信息并提交
     EditUserInfo() {
       this.$refs.editFormRef.validate(async valid => {
         console.log(valid)
         if(!valid) return;
         // 发起数据请求
-       const {data: res} = await this.$http.put('users/'+ this.editForm.id, {
+        const {data: res} = await this.$http.put('users/'+ this.editForm.id, {
           email: this.editForm.email,
           mobile: this.editForm.mobile
         })
@@ -271,6 +266,12 @@ export default {
         this.EditDialogVisible = false;
       })
     },
+    
+    // 监听对话框的关闭事件
+    editDialogClose() {
+      this.$refs.editFormRef.resetFields();
+    },
+
 
     // 关闭弹框
     handleClose() {

@@ -19,7 +19,25 @@
     <!-- 角色列表区域 -->
     <el-table :data="roleList" border stripe>
       <!-- 展开列 -->
-      <el-table-column type="expand"></el-table-column>
+      <el-table-column type="expand">
+        <template v-slot="scope">
+          <!-- <pre>{{scope.row}}</pre> -->
+          <el-row 
+            :class="['bd-bottom', index1 == 0 ? 'bd-top' : '']" 
+            v-for="(item1, index1) in scope.row.children" 
+            :key="item1.id">
+            <!-- 渲染以及权限 -->
+            <el-col :span="5">
+              <el-tag>
+              {{item1.authName}}
+              </el-tag>
+            <i class="el-icon-caret-right"></i>
+            </el-col>
+            <!-- 渲染二级权限 -->
+            <el-col :span="19"></el-col>
+          </el-row>
+        </template>
+      </el-table-column>
       <el-table-column type="index" label="#"></el-table-column>
       <el-table-column label="角色名称" prop="roleName"></el-table-column>
       <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
@@ -59,16 +77,16 @@
       @close="editDialogClose"
       :before-close="handleClose">
       <el-form ref="editFormRef" :model="editFromRole" :rules="editFromRules" label-width="80px">
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input></el-input>
+        <el-form-item label="角色名称"  prop="roleName">
+          <el-input v-model="editFromRole.roleName"></el-input>
         </el-form-item>
         <el-form-item label="角色描述" prop="roleDesc">
-          <el-input></el-input>
+          <el-input v-model="editFromRole.roleDesc"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="EditRoleInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -121,7 +139,7 @@ export default {
         return this.$message.error('获取角色列表失败')
       }
       this.roleList = res.data;
-      // console.log(this.roleList);
+      console.log(this.roleList);
     },
 
     // 点击按钮添加新用户
@@ -154,8 +172,35 @@ export default {
       this.addDialogVisible = true;
     },
 
-    editClick() {
+    // 获取修改角色弹框数据
+    async editClick(id) {
+      const { data: res } = await this.$http.get('roles/' + id);
+      if(res.meta.status !== 200) {
+        return this.$message.error('查询用户失败');
+      }
+      this.editFromRole = res.data;
+      this.getRoleList();
+      console.log(res);
       this.editDialogVisible = true;
+    },
+
+    // 修改角色并提交
+     EditRoleInfo() {
+      this.$refs.editFormRef.validate(async valid => {
+        if(!valid) return;
+        console.log(valid);
+        const { data: res } = await this.$http.put('roles/' + this.editFromRole.roleId, {
+          roleName: this.editFromRole.roleName,
+          roleDesc: this.editFromRole.roleDesc
+        })
+        console.log(res);
+        if (res.meta.status !== 200) {
+          return this.$message.error('修改角色失败');
+        }
+        this.$message.success('修改角色成功');
+        this.getRoleList();
+        this.editDialogVisible = false
+      })
     },
 
     // 关闭弹框
@@ -181,11 +226,23 @@ export default {
         }
         this.$message.success('该用户已经删除');
         this.getRoleList();
-    }
+    },
+
+
   }
 }
 </script>
 
-<style>
+<style scoped>
+.el-tag {
+  margin: 7px;
+}
 
+.bd-bottom {
+  border-bottom: 1px solid #eee;
+}
+
+.bd-top {
+  border-top: 1px solid #eee;
+}
 </style>
