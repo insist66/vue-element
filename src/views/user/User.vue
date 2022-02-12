@@ -41,7 +41,7 @@
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
             <!-- 分配角色按钮 -->
             <el-tooltip class="item" effect="dark" content="分配角色" :enterable="false" placement="top">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+              <el-button type="warning" @click="roleClick(scope.row)" icon="el-icon-setting" size="mini"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -105,7 +105,21 @@
         <el-button type="primary" @click="EditUserInfo">确 定</el-button>
       </span>
     </el-dialog>
-
+    <!-- 分配角色的弹框 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="setRoleDialogVisible"
+      width="50%"
+      :before-close="handleClose">
+      <div>
+        <p>当前的用户：{{uesrInfo.username}}</p>
+        <p>当前的角色：{{uesrInfo.role_name}}</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRoleDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,6 +148,7 @@ export default {
       userList: [], // 用户列表
       addDialogVisible: false, // 控制添加用户弹框的显隐
       EditDialogVisible: false, // 控制修改弹框的显隐
+      setRoleDialogVisible: false, // 控制角色分配弹框的显隐
       // 添加用户的表单数据
       addForm: {
         username: '',
@@ -142,6 +157,8 @@ export default {
         mobile: ''
       },
       editForm: {}, // 查询到的用户信息对象
+      uesrInfo: '', // 需要被分配角色的用户信息
+      rolesList: [], // 所有角色的数据列表
       // 添加用户的验证规则
       addFromRules: {
         username: [
@@ -302,6 +319,19 @@ export default {
         this.$message.success('该用户已经删除')
         this.getUserList()
       })
+    },
+    
+    // 点击分配用户角色
+    async roleClick(uesrInfo) {
+      this.uesrInfo = uesrInfo;
+      const {data: res} = await this.$http.get('roles')
+      console.log(res);
+      if (res.meta.status !== 200) {
+        this.$message.error('获取用户角色失败')
+      }
+      this.rolesList = res.data;
+      console.log(this.rolesList);
+      this.setRoleDialogVisible = true;
     }
   }
  }
