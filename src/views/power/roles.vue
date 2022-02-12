@@ -325,6 +325,7 @@ export default {
 
     // 点击为角色分配权限
     async roleDialogClick() {
+      // 拿到el-tree标签里的两个方法
       const keys = [
         ...this.$refs.roleRef.getCheckedKeys(),
         ...this.$refs.roleRef.getHalfCheckedKeys(),
