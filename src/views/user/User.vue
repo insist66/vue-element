@@ -46,6 +46,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!--分页模块 -->
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"

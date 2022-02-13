@@ -35,7 +35,11 @@ const router = new VueRouter({
         {
           path: '/roles',
           component: () => import(/* webpackChunkName: "user" */ '../views/power/roles.vue'),
-        }
+        },
+        {
+          path: '/categories',
+          component: () => import(/* webpackChunkName: "user" */ '../views/goods/cate.vue'),
+        },
       ]
     },
   ]
