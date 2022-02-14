@@ -3,6 +3,7 @@ import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import router from './router/router';
+import TreeTable from 'vue-table-with-tree-grid';
 
 // 导入字体图标
 import './assets/fonts/iconfont.css'
@@ -23,6 +24,8 @@ axios.interceptors.request.use(config => {
 })
 
 Vue.prototype.$http = axios;
+
+Vue.component('tree-table', TreeTable);
 
 Vue.config.productionTip = false; // 阻止显示生产模式的消息。
 Vue.use(ElementUI);
