@@ -11,7 +11,7 @@
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary">添加分类</el-button>
+          <el-button type="primary" @click="addCartListClick">添加分类</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -51,6 +51,35 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
       </el-pagination>
+
+      <!-- 添加分类弹框 -->
+      <el-dialog
+        title="添加分类"
+        :visible.sync="addDialogVisible"
+        width="50%"
+        :before-close="handleClose">
+        <el-form :model="addCateRuleForm" :rules="addRules" ref="addCateRuleForm" label-width="100px">
+          <el-form-item label="分类名称" prop="cat_name">
+            <el-input v-model="addCateRuleForm.cat_name"></el-input>
+          </el-form-item>
+          <el-form-item label="父级分类">
+            <!-- option 用来指定数据源 -->
+            <!-- props用来指定配置对象 -->
+            <el-cascader
+              v-model="seletedKeys"
+              :options="parentCateList"
+              :props="{ expandTrigger: 'hover',...cascaderProps}"
+              @change="handleChange"
+              clearable
+              change-on-select>
+            </el-cascader>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
@@ -65,6 +94,19 @@ export default {
         pagesize: 6// 每页显示的条数
       },
       total: 0, // 总数据条数
+      addDialogVisible: false, // 控制添加分类弹框显隐
+      addCateRuleForm: { // 添加分类的数据对象
+        cat_pid: 0,
+        cat_name: '',
+        cat_level: 0
+      },
+      parentCateList: [], // 父级分类的列表
+      seletedKeys: [], // 选中的父级分类id数组
+      cascaderProps: { // 指定级联选择器的配置对象
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children'
+      },
       columns: [
         { 
           label: '分类名称',
@@ -85,7 +127,14 @@ export default {
           type: 'template', // 表示将当前列定义为模板列
           template: 'opt' // 表示当前这一列使用模板名称
         }
-      ]
+      ],
+      // 分类名称的验证规则
+      addRules: {
+        cat_name: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
 
@@ -104,7 +153,7 @@ export default {
       }
       this.cartList = res.data.result;
       this.total = res.data.total;
-      console.log(this.cartList);
+      // console.log(this.cartList);
     },
 
     // 监听pagesize改变的事件
@@ -116,6 +165,33 @@ export default {
     handleCurrentChange(newPage) {
       this.queryInfo.pagenum = newPage;
       this.getCartList();
+    },
+
+    // 添加分类点击事件
+    addCartListClick() {
+      this.getParentCateList();
+      this.addDialogVisible = true;
+    },
+
+    // 点击关闭添加分类弹框
+    handleClose() {
+      this.addDialogVisible = false;
+    },
+
+    // 获取父级分类的数据列表
+    async getParentCateList() {
+      const {data: res} = await this.$http.get('categories', {
+        params: { type: 2 }
+      });
+      if (res.meta.status !== 200) {
+        this.$message.error('获取父级分类数据失败')
+      }
+      this.parentCateList = res.data;
+        console.log(this.parentCateList);
+    },
+
+    handleChange() {
+      console.log(this.seletedKeys);
     }
   }
 }
