@@ -58,9 +58,9 @@
         :visible.sync="addDialogVisible"
         width="50%"
         :before-close="handleClose">
-        <el-form :model="addCateRuleForm" :rules="addRules" ref="addCateRuleForm" label-width="100px">
+        <el-form :model="addCateForm" :rules="addRules" ref="addCateRef" label-width="100px">
           <el-form-item label="分类名称" prop="cat_name">
-            <el-input v-model="addCateRuleForm.cat_name"></el-input>
+            <el-input v-model="addCateForm.cat_name"></el-input>
           </el-form-item>
           <el-form-item label="父级分类">
             <!-- option 用来指定数据源 -->
@@ -68,16 +68,17 @@
             <el-cascader
               v-model="seletedKeys"
               :options="parentCateList"
-              :props="{ expandTrigger: 'hover',...cascaderProps}"
-              @change="handleChange"
+              :props="{ expandTrigger: 'hover',...cascaderProps,}"
+              @change="parentCateChange"
               clearable
-              change-on-select>
+              change-on-select
+              >
             </el-cascader>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+          <el-button type="primary" @click="addCate">确 定</el-button>
         </span>
       </el-dialog>
   </div>
@@ -95,7 +96,7 @@ export default {
       },
       total: 0, // 总数据条数
       addDialogVisible: false, // 控制添加分类弹框显隐
-      addCateRuleForm: { // 添加分类的数据对象
+      addCateForm: { // 添加分类的数据对象
         cat_pid: 0,
         cat_name: '',
         cat_level: 0
@@ -190,8 +191,27 @@ export default {
         console.log(this.parentCateList);
     },
 
-    handleChange() {
+    // 选择项发生变化触发这个函数
+    parentCateChange() {
       console.log(this.seletedKeys);
+      // 如果seletedKeys数组中的length大于0，证明选中了腹肌分类
+      // 繁殖就没有选中任何分类
+      if (this.seletedKeys.length > 0) {
+        // 父级分类的id
+        this.addCateForm.cat_pid = this.seletedKeys[this.seletedKeys.length - 1];
+        // 为当前分类的等级赋值
+        this.addCateForm.cat_level = this.seletedKeys.length;
+        return
+      }else {
+        this.addCateForm.cat_pid = 0;
+        this.addCateForm.cat_level= 0;
+      }
+    },
+
+    // 点击按钮添加新的分类
+    addCate() {
+      console.log(this.addCateForm);
+      this.addDialogVisible = false;
     }
   }
 }
