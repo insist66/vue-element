@@ -40,6 +40,10 @@ const router = new VueRouter({
           path: '/categories',
           component: () => import(/* webpackChunkName: "user" */ '../views/goods/cate.vue'),
         },
+        {
+          path: '/params',
+          component: () => import(/* webpackChunkName: "user" */ '../views/goods/params.vue'),
+        },
       ]
     },
   ]

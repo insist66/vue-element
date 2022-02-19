@@ -212,7 +212,7 @@ export default {
         params: { type: 2 }
       });
       if (res.meta.status !== 200) {
-        this.$message.error('获取父级分类数据失败')
+        return this.$message.error('获取父级分类数据失败')
       }
       this.parentCateList = res.data;
         // console.log(this.parentCateList);
@@ -262,7 +262,7 @@ export default {
     async showEditDialog(id) {
       const {data: res} = await this.$http.get('categories/' + id);
       if (res.meta.status !== 200) {
-        this.$message.error('查询用户信息失败')
+        return this.$message.error('查询用户信息失败')
       }
       this.editCateForm = res.data;
       console.log(this.editCateForm);
@@ -277,7 +277,7 @@ export default {
         });
         console.log(res);
         if(res.meta.status !== 200) {
-          this.$message.error('修改分类名称失败')
+          return this.$message.error('修改分类名称失败')
         }
         this.$message.success('修改分类名称成功')
         this.getCartList();
@@ -299,7 +299,7 @@ export default {
       // console.log('已删除');
       const {data: res} = await this.$http.delete('categories/' + id);
       if (res.meta.status !== 200) {
-        this.$message.error('删除失败')
+        return this.$message.error('删除失败')
       }
       this.$message.success('删除成功');
       this.getCartList();
