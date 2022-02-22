@@ -36,9 +36,9 @@
             <el-table-column label="操作">
               <template v-slot="scope">
                 <!-- 修改按钮 -->
-                <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+                <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.attr_id)"></el-button>
                 <!-- 删除按钮 -->
-                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.attr_id)"></el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -54,23 +54,23 @@
             <el-table-column label="操作">
               <template v-slot="scope">
                 <!-- 修改按钮 -->
-                <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+                <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.attr_id)"></el-button>
                 <!-- 删除按钮 -->
-                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.attr_id)"></el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
       </el-tabs>
     </el-card>
-
+    <!-- 添加参数弹框 -->
     <el-dialog
       :title="'添加' + textTitle"
       :visible.sync="addDialogVisible"
       width="50%"
       :before-close="handleClose"
       @close="addDialogClose">
-      <el-form :model="addRuleForm" :rules="addRules" ref="addFormRef" label-width="100px">
+      <el-form :model="addRuleForm" :rules="Rules" ref="addFormRef" label-width="100px">
         <el-form-item :label="textTitle" prop="attr_name">
           <el-input v-model="addRuleForm.attr_name"></el-input>
         </el-form-item>
@@ -78,6 +78,24 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addParams">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 修改参数弹框 -->
+    <el-dialog
+      :title="'修改' + textTitle"
+      :visible.sync="editDialogVisible"
+      width="50%"
+      :before-close="handleClose"
+      @close="editDialogClose">
+      <el-form :model="editRuleForm" :rules="Rules" ref="editFormRef" label-width="100px">
+        <el-form-item :label="textTitle" prop="attr_name">
+          <el-input v-model="editRuleForm.attr_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editParams">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -98,11 +116,15 @@ export default {
       manyTableData: [], // 动态参数数组
       onlyTableData: [], // 静态参数数组
       addDialogVisible: false, // 控制添加参数弹框显隐
+      editDialogVisible: false, // 控制修改对话框的显隐
       addRuleForm: { // 添加属性参数的数据对象
         attr_name: ''
       },
-      // 添加动态参数静态属性的字段校验
-      addRules: {
+      editRuleForm: {
+        attr_name: ''// 修改参数的数据对象
+      }, 
+      // 添加与修改动态参数静态属性的字段校验
+      Rules: {
         attr_name: [
           { required: true, message: '请输入活动名称', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
@@ -174,6 +196,7 @@ export default {
       }
     },
 
+    // 添加参数属性
     addParams() {
       this.$refs.addFormRef.validate(async valid => {
         if(!valid) return
@@ -203,11 +226,64 @@ export default {
     // 监听添加用户对话框额关闭事件
     addDialogClose() {
       this.$refs.addFormRef.resetFields();
+    },    
+
+    // 监听修改用户对话框的关闭事件
+    editDialogClose() {
+      this.$refs.editFormRef.resetFields();
     },
 
     // 关闭弹框
     handleClose() {
       this.addDialogVisible = false;
+    },
+    
+    //  打开修改弹框
+    async showEditDialog(attr_id) {
+      const {data: res } = await this.$http.get(`categories/${this.cateId}/attributes/${attr_id}`, {
+        params: { attr_sel: this.activeName } // 查询当前参数的信息
+      })
+      
+      if (res.meta.status !== 200) {
+        return this.$message.error('查询失败')
+      }
+      this.editRuleForm = res.data;
+      // console.log(this.editRuleForm);
+      this.editDialogVisible = true;
+    },
+
+    //修改属性名称并提交
+    async editParams() {
+      const {data: res} = await this.$http.put(`categories/${this.cateId}/attributes/${this.editRuleForm.attr_id}`, {
+        attr_name: this.editRuleForm.attr_name,
+        attr_sel: this.activeName
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改参数失败')
+      }
+      this.$message.success('修改参数成功')
+      this.getParamsData();
+      this.editDialogVisible = false;
+    },
+
+    // 删除分类
+    async removeUserById(attr_id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err);
+      // console.log(confirmResult);
+      if(confirmResult !== 'confirm') {
+        return this.$message.info('用户取消了删除')
+      }
+      // console.log('已删除');
+      const {data: res} = await this.$http.delete(`categories/${this.cateId}/attributes/${attr_id}`);
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败')
+      }
+      this.$message.success('删除成功');
+      this.getParamsData();
     }
   }
 }
