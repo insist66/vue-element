@@ -123,7 +123,7 @@ export default {
       editRuleForm: {
         attr_name: ''// 修改参数的数据对象
       }, 
-      // 添加与修改动态参数静态属性的字段校验
+      // 添加与修改动态参数静态属性的字段校验正
       Rules: {
         attr_name: [
           { required: true, message: '请输入活动名称', trigger: 'blur' },
